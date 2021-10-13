@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
 #include "myFuncs.h"
 #include "internalCmds.h"
+#include "externalCmds.h"
 
 #define COLOR_RED "\x1b[31m"
 #define COLOR_GREEN "\x1b[32m"
@@ -29,7 +29,7 @@ int main (int argc, char *argv[]){
     while(read(0,buffer,200)){
 
         if(parseInternalCommands(buffer)!=0){
-            write(1,"comando externo\n",16);
+            externalCommand(buffer);
         }
 
         pwd = getenv("PWD");
