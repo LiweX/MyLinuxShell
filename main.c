@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "myFuncs.h"
+#include "internalCmds.h"
 
 int main (int argc, char *argv[]){
 
@@ -12,11 +13,15 @@ int main (int argc, char *argv[]){
     write(1,motd,strlen(motd));
     char *user = getenv("USER");
     char *hostname = getHostname();
+    char *pwd = getenv("PWD");
     char prompt[200];
-    sprintf(prompt,"\n%s@%s:~$ ",user,hostname);
+    sprintf(prompt,"\n%s@%s:%s$ ",user,hostname,pwd);
     write(1,prompt,strlen(prompt));
 
     while(read(0,buffer,200)){
+
+        parseInternalCommands(buffer);
+
         write(1,prompt,strlen(prompt));
     }
 
