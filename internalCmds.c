@@ -13,10 +13,14 @@ int parseInternalCommands(char* cmd){
         write(0,"\nBye bye!\n",10);
         exit(EXIT_SUCCESS);
     }
-    if(strstr(token,"cd")){
-        token = strtok(NULL," ");
+    if(strstr(token,"echo")){
+        
         if(token!=NULL){
+            fflush(stdout);
+            token=strtok(NULL,"\n");
+            write(1,token,strlen(token));
         }
+        return 0;
     }
     return 1;
 }
