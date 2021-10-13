@@ -6,6 +6,14 @@
 #include "myFuncs.h"
 #include "internalCmds.h"
 
+#define COLOR_RED "\x1b[31m"
+#define COLOR_GREEN "\x1b[32m"
+#define COLOR_YELLOW "\x1b[33m"
+#define COLOR_BLUE "\x1b[34m"
+#define COLOR_MAGENTA "\x1b[35m"
+#define COLOR_CYAN "\x1b[36m"
+#define COLOR_RESET "\x1b[0m"
+
 int main (int argc, char *argv[]){
 
     char buffer[200];
@@ -15,15 +23,15 @@ int main (int argc, char *argv[]){
     char *hostname = getHostname();
     char *pwd = getenv("PWD");
     char prompt[200];
-    sprintf(prompt,"\n%s@%s:%s$ ",user,hostname,pwd);
+    sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
     write(1,prompt,strlen(prompt));
 
     while(read(0,buffer,200)){
 
         parseInternalCommands(buffer);
-
+        
         pwd = getenv("PWD");
-        sprintf(prompt,"\n%s@%s:%s$ ",user,hostname,pwd);
+        sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
         write(1,prompt,strlen(prompt));
     }
 }

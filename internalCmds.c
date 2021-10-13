@@ -13,7 +13,7 @@ int parseInternalCommands(char* cmd){
 
         char dir[200];
         token=strtok(NULL,"\n");
-        fprintf(stdout,"%s\n",token);
+        if(token==NULL) return 0;
         strcpy(dir,getenv("PWD"));
 
         if(strstr(token,"..")){
@@ -32,8 +32,9 @@ int parseInternalCommands(char* cmd){
         if(strstr(token,"-")){
             if(chdir(getenv("OLDPWD")) != 0) perror("change to oldpwd failed");
             else{
+                char *tmp = getenv("OLDPWD");
                 setenv("OLDPWD",getenv("PWD"),1);
-                setenv("PWD",getenv("OLDPWD"),1);
+                setenv("PWD",tmp,1);
             } 
         }else
         if(token[0]=='/'){
@@ -52,6 +53,12 @@ int parseInternalCommands(char* cmd){
             }
         }return 0;
     }
+    if(strstr(token,"clr")){
+        token=strtok(NULL,"\n");
+        if(token!=NULL) return 0;
+        system("clear");
+        return 0;
+    }
     if(strstr(token,"echo")){
 
         token=strtok(NULL,"\n");
@@ -62,11 +69,10 @@ int parseInternalCommands(char* cmd){
             write(1,getenv(env),strlen(getenv(env)));
         }else{
             write(1,token,strlen(token));
-        }
-        return 0;
+        }return 0;
     }
     if(strstr(token,"quit")){
-        write(1,"\nBye bye!\n",10);
+        write(1,"Bye bye!\n",10);
         exit(EXIT_SUCCESS);
     }
     return 1;
