@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "myFuncs.h"
 
 int parseInternalCommands(char* cmd){
 
@@ -63,6 +62,7 @@ int parseInternalCommands(char* cmd){
 
         token=strtok(NULL,"\n");
         if(token==NULL) return 0;
+        strcat(token,"\n");
         if(token[0]=='$'){
             char *env = (token+1);
             if(getenv(env)==NULL) return 0;

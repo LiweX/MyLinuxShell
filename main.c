@@ -17,7 +17,7 @@
 int main (int argc, char *argv[]){
 
     char buffer[200];
-    char motd[] = "#########################\n\n       LIWEX SHELL       \n\n#########################\n";
+    char motd[] = "\x1b[35m#########################\n\n       LIWEX SHELL       \n\n#########################\n";
     write(1,motd,strlen(motd));
     char *user = getenv("USER");
     char *hostname = getHostname();
@@ -28,8 +28,10 @@ int main (int argc, char *argv[]){
 
     while(read(0,buffer,200)){
 
-        parseInternalCommands(buffer);
-        
+        if(parseInternalCommands(buffer)!=0){
+            write(1,"comando externo\n",16);
+        }
+
         pwd = getenv("PWD");
         sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
         write(1,prompt,strlen(prompt));
