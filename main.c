@@ -22,7 +22,8 @@ int main (int argc, char *argv[]){
 
         parseInternalCommands(buffer);
 
+        pwd = getenv("PWD");
+        sprintf(prompt,"\n%s@%s:%s$ ",user,hostname,pwd);
         write(1,prompt,strlen(prompt));
     }
-
 }
