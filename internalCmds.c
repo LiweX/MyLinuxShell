@@ -3,8 +3,9 @@
 #include <unistd.h>
 #include <string.h>
 
-int parseInternalCommands(char* cmd){
-
+int parseInternalCommands(char* buffer){
+    char cmd[200];
+    strcpy(cmd,buffer);
     char *token = strtok(cmd," ");
     fflush(stdout);
 
@@ -59,12 +60,10 @@ int parseInternalCommands(char* cmd){
         return 0;
     }
     if(strstr(token,"echo")){
-
         token=strtok(NULL,"\n");
         if(token==NULL) return 0;
-        strcat(token,"\n");
         if(token[0]=='$'){
-            char *env = (token+1);
+            char *env=&token[1];
             if(getenv(env)==NULL) return 0;
             write(1,getenv(env),strlen(getenv(env)));
         }else{

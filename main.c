@@ -25,7 +25,6 @@ int main (int argc, char *argv[]){
     char prompt[200];
     sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
     write(1,prompt,strlen(prompt));
-
     while(read(0,buffer,200)){
 
         if(parseInternalCommands(buffer)!=0){
@@ -33,7 +32,8 @@ int main (int argc, char *argv[]){
         }
 
         pwd = getenv("PWD");
-        sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
+        sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
         write(1,prompt,strlen(prompt));
+        fflush(stdin);
     }
 }
