@@ -27,6 +27,9 @@ typedef struct InternalFlags
     int cd_direct;
     int cd_guion;
     int quit;
+    int externo;
+    int absoluto;
+    int cwd;
 
 } InternalFlags;
 

@@ -10,6 +10,7 @@ void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
         flags->cd=1;
         if(strncmp(cmds->elements[1],"/",1)==0) flags->cd_direct=1;
         if(strcmp(cmds->elements[1],"-")==0) flags->cd_guion=1;
+        return;
     }
     if(strcmp(cmds->elements[0],"echo")==0){
         flags->echo=1;
@@ -19,9 +20,18 @@ void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
                 break;
             } 
         }
+        return;
     }
-    if(strcmp(cmds->elements[0],"clr")==0) flags->clr=1;
-    if(strcmp(cmds->elements[0],"quit")==0) flags->quit=1;
+    if(strcmp(cmds->elements[0],"clr")==0) {
+        flags->clr=1;
+        return;
+    }
+    if(strcmp(cmds->elements[0],"quit")==0) {
+        flags->quit=1;
+        return;
+    }flags->externo=1;
+    if(strncmp(cmds->elements[0],"/",1)==0) flags->absoluto=1;
+    if(strncmp(cmds->elements[0],".",1)==0) flags->cwd=1;
 }
 
 void executeInternalCommands(InternalFlags * flags,StringArray * cmds){

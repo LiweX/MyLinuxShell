@@ -1,7 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include "myFuncs.h"
 
 FILE* openFile(char* path){
@@ -61,4 +57,7 @@ void resetFlags(InternalFlags *flags){
     flags->echo=0;
     flags->echo_env=0;
     flags->quit=0;
+    flags->externo=0;
+    flags->absoluto=0;
+    flags->cwd=0;
 }
