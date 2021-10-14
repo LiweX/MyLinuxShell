@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-
-
+#include "myFuncs.h"
 
 FILE* openFile(char* path){
     FILE *file;
@@ -33,4 +32,33 @@ char* toUpperCase(char* word){
         }
     }
     return word;
+}
+
+StringArray tokenizar(char * string, char * delimitador){
+
+    char **tokens = (char**)malloc(sizeof(char*));
+    char *token = strtok(string,delimitador);
+    int n_tokens=0;
+    while(token!=NULL){
+        if(tokens!=0) tokens = (char**)realloc(tokens,sizeof(char*)*(n_tokens+1)); 
+        tokens[n_tokens]=token;
+        n_tokens++;
+        token=strtok(NULL,delimitador);
+    }
+    token = strtok(tokens[n_tokens-1],"\n");
+    tokens[n_tokens-1] = token;
+    StringArray array;
+    array.elements=tokens;
+    array.size=n_tokens;
+    return array;
+}
+
+void resetFlags(InternalFlags *flags){
+    flags->cd=0;
+    flags->cd_direct=0;
+    flags->cd_guion=0;
+    flags->clr=0;
+    flags->echo=0;
+    flags->echo_env=0;
+    flags->quit=0;
 }

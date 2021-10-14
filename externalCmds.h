@@ -1,5 +1,5 @@
 #ifndef EXTERNALCMDS_H
 #define EXTERNALCMDS_H
 
-int externalCommand(char* cmd);
+void externalCommand(StringArray *args);
 #endif

@@ -1,18 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include "myFuncs.h"
 #include "internalCmds.h"
 #include "externalCmds.h"
-
-#define COLOR_RED "\x1b[31m"
-#define COLOR_GREEN "\x1b[32m"
-#define COLOR_YELLOW "\x1b[33m"
-#define COLOR_BLUE "\x1b[34m"
-#define COLOR_MAGENTA "\x1b[35m"
-#define COLOR_CYAN "\x1b[36m"
-#define COLOR_RESET "\x1b[0m"
 
 int main (int argc, char *argv[]){
 
@@ -22,17 +10,25 @@ int main (int argc, char *argv[]){
     char *user = getenv("USER");
     char *hostname = getHostname();
     char *pwd = getenv("PWD");
+    //char *path = getenv("PATH");
     char prompt[200];
     sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
     write(1,prompt,strlen(prompt));
+    StringArray cmdArray;
+    InternalFlags iflags;
+    resetFlags(&iflags);
     while(read(0,buffer,200)){
 
-        if(parseInternalCommands(buffer)!=0){
-            externalCommand(buffer);
-        }
+        cmdArray = tokenizar(buffer," ");
+        //for(int i=0;i<cmdArray.size;i++) printf("%d.%s\n",i,cmdArray.elements[i]);
 
-        pwd = getenv("PWD");
-        sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
+        parseInternalCommands(&iflags,&cmdArray);
+
+        executeInternalCommands(&iflags,&cmdArray);
+        
+        resetFlags(&iflags);
+
+        sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW);
         write(1,prompt,strlen(prompt));
         fflush(stdin);
     }

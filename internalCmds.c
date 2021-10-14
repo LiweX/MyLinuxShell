@@ -2,77 +2,81 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include "myFuncs.h"
 
-int parseInternalCommands(char* buffer){
-    char cmd[200];
-    strcpy(cmd,buffer);
-    char *token = strtok(cmd," ");
-    fflush(stdout);
+void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
 
-    if(strstr(token,"cd")){
+    if(strcmp(cmds->elements[0],"cd")==0 && cmds->size==2){
+        flags->cd=1;
+        if(strncmp(cmds->elements[1],"/",1)==0) flags->cd_direct=1;
+        if(strcmp(cmds->elements[1],"-")==0) flags->cd_guion=1;
+    }
+    if(strcmp(cmds->elements[0],"echo")==0){
+        flags->echo=1;
+        for(int i=1;i<cmds->size;i++){
+            if(strncmp(cmds->elements[i],"$",1)==0){
+                flags->echo_env=0;
+                break;
+            } 
+        }
+    }
+    if(strcmp(cmds->elements[0],"clr")==0) flags->clr=1;
+    if(strcmp(cmds->elements[0],"quit")==0) flags->quit=1;
+}
 
-        char dir[200];
-        token=strtok(NULL,"\n");
-        if(token==NULL) return 0;
-        strcpy(dir,getenv("PWD"));
+void executeInternalCommands(InternalFlags * flags,StringArray * cmds){
+    
+    if(flags->cd){
 
-        if(strstr(token,"..")){
-            for(int i=strlen(dir);i>0;i--){
-                if(dir[i]=='/'){
-                    dir[i]='\0';
-                    break;
-                } 
-            }
-            if(chdir(dir) != 0) perror("change to up dir failed");
-            else{
-                setenv("OLDPWD",getenv("PWD"),1);
-                setenv("PWD",dir,1);
-            }
-        }else
-        if(strstr(token,"-")){
+        if(flags->cd_guion){
             if(chdir(getenv("OLDPWD")) != 0) perror("change to oldpwd failed");
             else{
                 char *tmp = getenv("OLDPWD");
                 setenv("OLDPWD",getenv("PWD"),1);
                 setenv("PWD",tmp,1);
-            } 
-        }else
-        if(token[0]=='/'){
-            if(chdir(token) != 0) perror("change direct directory failed");
+            }return;
+        }
+
+        if(flags->cd_direct){
+            if(chdir(cmds->elements[1]) != 0) perror("change direct directory failed");
             else{
                 setenv("OLDPWD",getenv("PWD"),1);
-                setenv("PWD",token,1);
-            }
-        }else{
-            strcat(dir,"/");
-            strcat(dir,token);
-            if(chdir(dir) != 0) perror("change directory failed");
-            else{
+                setenv("PWD",cmds->elements[1],1);
+            }return;
+        }
+
+        char* dir = getcwd(NULL, 0);
+        strcat(dir,"/");
+        strcat(dir,cmds->elements[1]);
+        if(chdir(dir) != 0) perror("change directory failed");
+        else{
                 setenv("OLDPWD",getenv("PWD"),1);
                 setenv("PWD",dir,1);
+        }return;
+    }
+
+    if(flags->echo){
+        char string[300];
+        strcpy(string,cmds->elements[1]);
+        for(int i=2;i<cmds->size;i++){
+            if(strncmp(cmds->elements[i],"$",1)==0){
+                char *env=getenv((cmds->elements[i]+1));
+                cmds->elements[i]=env;
             }
-        }return 0;
+            strcat(string," ");
+            strcat(string,cmds->elements[i]);
+        }
+        write(1,string,strlen(string));
+        return;
     }
-    if(strstr(token,"clr")){
-        token=strtok(NULL,"\n");
-        if(token!=NULL) return 0;
+
+    if(flags->clr){
         system("clear");
-        return 0;
+        return;
     }
-    if(strstr(token,"echo")){
-        token=strtok(NULL,"\n");
-        if(token==NULL) return 0;
-        if(token[0]=='$'){
-            char *env=&token[1];
-            if(getenv(env)==NULL) return 0;
-            write(1,getenv(env),strlen(getenv(env)));
-        }else{
-            write(1,token,strlen(token));
-        }return 0;
-    }
-    if(strstr(token,"quit")){
+
+    if(flags->quit){
         write(1,"Bye bye!\n",10);
         exit(EXIT_SUCCESS);
     }
-    return 1;
-}
+}    
