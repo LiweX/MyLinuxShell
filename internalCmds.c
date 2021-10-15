@@ -29,7 +29,8 @@ void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
     if(strcmp(cmds->elements[0],"quit")==0) {
         flags->quit=1;
         return;
-    }flags->externo=1;
+    }
+    flags->externo=1;
     if(strncmp(cmds->elements[0],"/",1)==0) flags->absoluto=1;
     if(strncmp(cmds->elements[0],".",1)==0) flags->cwd=1;
 }

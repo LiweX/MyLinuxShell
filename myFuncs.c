@@ -61,3 +61,27 @@ void resetFlags(InternalFlags *flags){
     flags->absoluto=0;
     flags->cwd=0;
 }
+
+void executar(char* path,StringArray *args){
+    switch(args->size){
+                case 1:
+                    execl(path,args->elements[0],NULL);
+                    break;
+                case 2:
+                    execl(path,args->elements[0],args->elements[1],NULL);
+                    break;
+                case 3:
+                    execl(path,args->elements[0],args->elements[1],args->elements[2],NULL);
+                    break;
+                case 4:
+                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],NULL);
+                    break;
+                case 5:
+                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],args->elements[4],NULL);
+                    break;
+                default:
+                    write(1,"Only 5 args max\n",16);
+                    exit(EXIT_FAILURE);
+                    break;
+            }
+}
