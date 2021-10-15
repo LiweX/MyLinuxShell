@@ -40,5 +40,4 @@ char* getHostname();
 char* toUpperCase(char* word);
 StringArray tokenizar(char * string, char * delimitador);
 void resetFlags(InternalFlags *flags);
-void executar(char* path,StringArray *args);
 #endif

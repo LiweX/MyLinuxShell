@@ -27,7 +27,10 @@ void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
     flags->externo=1;
     if(strncmp(cmds->elements[0],"/",1)==0) flags->absoluto=1;
     if(strncmp(cmds->elements[0],".",1)==0) flags->relativo=1;
-    if(strcmp(cmds->elements[(cmds->size-1)],"&")) flags->background=1;
+    if(strcmp(cmds->elements[(cmds->size-1)],"&")==0){
+      cmds->size-=1; 
+      flags->background=1; 
+    } 
 }
 
 void executeInternalCommands(InternalFlags * flags,StringArray * cmds){

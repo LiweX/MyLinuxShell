@@ -42,13 +42,21 @@ StringArray tokenizar(char * string, char * delimitador){
                 free(tokens);
                 exit(EXIT_FAILURE);
             }
-        } 
+        }
         tokens[n_tokens]=token;
         n_tokens++;
-        token=strtok(NULL,delimitador);
+        token=strtok(NULL,delimitador); 
+
     }
     token = strtok(tokens[n_tokens-1],"\n");
     tokens[n_tokens-1] = token;
+
+    tokens = (char**)realloc(tokens,sizeof(char*)*(n_tokens+1));
+        if(tokens==NULL){
+            free(tokens);
+            exit(EXIT_FAILURE);
+        }
+    tokens[n_tokens] = NULL;
     
     StringArray array;
     array.elements=tokens;
@@ -68,28 +76,4 @@ void resetFlags(InternalFlags *flags){
     flags->absoluto=0;
     flags->relativo=0;
     flags->background=0;
-}
-
-void executar(char* path,StringArray *args){
-    switch(args->size){
-                case 1:
-                    execl(path,args->elements[0],(char*)NULL);
-                    break;
-                case 2:
-                    execl(path,args->elements[0],args->elements[1],(char*)NULL);
-                    break;
-                case 3:
-                    execl(path,args->elements[0],args->elements[1],args->elements[2],(char*)NULL);
-                    break;
-                case 4:
-                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],(char*)NULL);
-                    break;
-                case 5:
-                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],args->elements[4],(char*)NULL);
-                    break;
-                default:
-                    write(1,"Only 5 args max\n",16);
-                    exit(EXIT_FAILURE);
-                    break;
-            }
 }
