@@ -30,9 +30,8 @@ void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
 }
 
 void executeInternalCommands(InternalFlags * flags,StringArray * cmds){
-    char dir[200];
     if(flags->cd){
-
+        char dir[200];
         if(flags->cd_guion){
             if(chdir(getenv("OLDPWD")) != 0) perror("change to oldpwd failed");
             else{
@@ -63,7 +62,7 @@ void executeInternalCommands(InternalFlags * flags,StringArray * cmds){
         char string[300];
         for(int i=1;i<cmds->size;i++){
             if(strncmp(cmds->elements[i],"$",1)==0) strcpy(cmds->elements[i],getenv((cmds->elements[i]+1)));
-            strcat(string,cmds->elements[i]);
+            strcpy(string,cmds->elements[i]);
             strcat(string," ");    
         }
         write(1,string,strlen(string));

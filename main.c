@@ -1,6 +1,7 @@
 #include "myFuncs.h"
 #include "internalCmds.h"
 #include "externalCmds.h"
+#include "batchFile.h"
 
 int main (int argc, char *argv[]){
 
@@ -14,14 +15,21 @@ int main (int argc, char *argv[]){
     char *pwd = getenv("PWD");
     strcpy(path,getenv("PATH"));
     sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
-    write(1,prompt,strlen(prompt));
     StringArray cmdArray;
     StringArray pathArray;
     pathArray=tokenizar(path,":");
     InternalFlags flags;
     resetFlags(&flags);
-    
-    while(read(0,buffer,200)){
+
+    if(argc==2){
+
+        batchFile(&flags,&pathArray,argv[1]);
+
+    }else{
+
+        write(1,prompt,strlen(prompt));
+
+        while(read(0,buffer,200)){
 
         cmdArray = tokenizar(buffer," ");
 
@@ -38,5 +46,8 @@ int main (int argc, char *argv[]){
         sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW);
         write(1,prompt,strlen(prompt));
         fflush(stdin);
+    }
+    write(1,"cuestion invalida\n",18);
+    exit(EXIT_FAILURE);
     }
 }

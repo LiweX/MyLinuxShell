@@ -36,7 +36,13 @@ StringArray tokenizar(char * string, char * delimitador){
     char *token = strtok(string,delimitador);
     int n_tokens=0;
     while(token!=NULL){
-        if(tokens!=0) tokens = (char**)realloc(tokens,sizeof(char*)*(n_tokens+1)); 
+        if(tokens!=0){
+            tokens = (char**)realloc(tokens,sizeof(char*)*(n_tokens+1));
+            if(tokens==NULL){
+                free(tokens);
+                exit(EXIT_FAILURE);
+            }
+        } 
         tokens[n_tokens]=token;
         n_tokens++;
         token=strtok(NULL,delimitador);
