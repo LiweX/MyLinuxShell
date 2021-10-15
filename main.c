@@ -7,7 +7,6 @@ int main (int argc, char *argv[]){
 
     char prompt[400];
     char path[400];
-    char buffer[400];
     char motd[] = "\x1b[35m#########################\n\n       LIWEX SHELL       \n\n#########################\n";
     write(1,motd,strlen(motd));
     char *user = getenv("USER");
@@ -26,7 +25,7 @@ int main (int argc, char *argv[]){
         batchFile(&flags,&pathArray,argv[1]);
 
     }else{
-
+        char buffer[400];
         write(1,prompt,strlen(prompt));
 
         while(read(0,buffer,200)){
@@ -45,7 +44,6 @@ int main (int argc, char *argv[]){
 
         sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW);
         write(1,prompt,strlen(prompt));
-        fflush(stdin);
     }
     write(1,"cuestion invalida\n",18);
     exit(EXIT_FAILURE);
