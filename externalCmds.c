@@ -34,5 +34,4 @@ void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
         wait(NULL);
         break;
     } 
-
 }

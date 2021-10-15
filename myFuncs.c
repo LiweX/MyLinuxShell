@@ -43,6 +43,7 @@ StringArray tokenizar(char * string, char * delimitador){
     }
     token = strtok(tokens[n_tokens-1],"\n");
     tokens[n_tokens-1] = token;
+    
     StringArray array;
     array.elements=tokens;
     array.size=n_tokens;
@@ -65,19 +66,19 @@ void resetFlags(InternalFlags *flags){
 void executar(char* path,StringArray *args){
     switch(args->size){
                 case 1:
-                    execl(path,args->elements[0],NULL);
+                    execl(path,args->elements[0],(char*)NULL);
                     break;
                 case 2:
-                    execl(path,args->elements[0],args->elements[1],NULL);
+                    execl(path,args->elements[0],args->elements[1],(char*)NULL);
                     break;
                 case 3:
-                    execl(path,args->elements[0],args->elements[1],args->elements[2],NULL);
+                    execl(path,args->elements[0],args->elements[1],args->elements[2],(char*)NULL);
                     break;
                 case 4:
-                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],NULL);
+                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],(char*)NULL);
                     break;
                 case 5:
-                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],args->elements[4],NULL);
+                    execl(path,args->elements[0],args->elements[1],args->elements[2],args->elements[3],args->elements[4],(char*)NULL);
                     break;
                 default:
                     write(1,"Only 5 args max\n",16);

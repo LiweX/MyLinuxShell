@@ -4,14 +4,15 @@
 
 int main (int argc, char *argv[]){
 
+    char prompt[400];
+    char path[400];
     char buffer[400];
     char motd[] = "\x1b[35m#########################\n\n       LIWEX SHELL       \n\n#########################\n";
     write(1,motd,strlen(motd));
     char *user = getenv("USER");
     char *hostname = getHostname();
     char *pwd = getenv("PWD");
-    char *path = getenv("PATH");
-    char prompt[400];
+    strcpy(path,getenv("PATH"));
     sprintf(prompt,"%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,pwd,COLOR_YELLOW);
     write(1,prompt,strlen(prompt));
     StringArray cmdArray;
@@ -19,10 +20,10 @@ int main (int argc, char *argv[]){
     pathArray=tokenizar(path,":");
     InternalFlags flags;
     resetFlags(&flags);
+    
     while(read(0,buffer,200)){
 
         cmdArray = tokenizar(buffer," ");
-        //for(int i=0;i<cmdArray.size;i++) printf("%d.%s\n",i,cmdArray.elements[i]);
 
         parseInternalCommands(&flags,&cmdArray);
 
