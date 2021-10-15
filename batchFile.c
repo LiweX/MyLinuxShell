@@ -4,15 +4,13 @@
 
 
 void batchFile(InternalFlags *flags,StringArray *paths,char* fileName){
-    
+
     char filePath[400];
     char buffer[400];
     char prompt[500];
     strcpy(filePath,getcwd(NULL,0));
-    printf("%s\n",filePath);
     strcat(filePath,"/");
     strcat(filePath,fileName);
-    printf("%s\n",filePath);
     FILE *file = openFile(filePath);
     StringArray cmdArray;
 

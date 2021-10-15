@@ -59,10 +59,10 @@ void executeInternalCommands(InternalFlags * flags,StringArray * cmds){
     }
 
     if(flags->echo){
-        char string[300];
+        char string[300]="";
         for(int i=1;i<cmds->size;i++){
-            if(strncmp(cmds->elements[i],"$",1)==0) strcpy(cmds->elements[i],getenv((cmds->elements[i]+1)));
-            strcpy(string,cmds->elements[i]);
+            if(strncmp(cmds->elements[i],"$",1)==0) strcat(string,getenv((cmds->elements[i]+1)));
+            else strcat(string,cmds->elements[i]);
             strcat(string," ");    
         }
         write(1,string,strlen(string));
