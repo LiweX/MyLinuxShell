@@ -66,7 +66,8 @@ void resetFlags(InternalFlags *flags){
     flags->quit=0;
     flags->externo=0;
     flags->absoluto=0;
-    flags->cwd=0;
+    flags->relativo=0;
+    flags->background=0;
 }
 
 void executar(char* path,StringArray *args){

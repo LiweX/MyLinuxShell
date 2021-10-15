@@ -14,7 +14,7 @@ void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
         if(flags->absoluto){
             strcpy(path,args->elements[0]);
             executar(path,args);
-        }else if(flags->cwd){
+        }else if(flags->relativo){
             strcpy(path,getenv("PWD"));
             strcat(path,"/");
             strtok(args->elements[0],"/");
@@ -31,7 +31,12 @@ void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
         exit(EXIT_SUCCESS);
         break;
     default:
-        wait(NULL);
+        if(flags->background){
+            
+        }else{
+            wait(NULL);
+        }
+        
         break;
     } 
 }

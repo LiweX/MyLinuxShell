@@ -30,7 +30,8 @@ typedef struct InternalFlags
     int quit;
     int externo;
     int absoluto;
-    int cwd;
+    int relativo;
+    int background;
 
 } InternalFlags;
 
