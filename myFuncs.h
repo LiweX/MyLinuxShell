@@ -14,7 +14,8 @@
 #define COLOR_MAGENTA "\x1b[35m"
 #define COLOR_CYAN "\x1b[36m"
 #define COLOR_RESET "\x1b[0m"
-typedef struct StringArray{
+typedef struct StringArray
+{
     int size;
     char ** elements;
 } StringArray;
@@ -38,5 +39,5 @@ char* getHostname();
 char* toUpperCase(char* word);
 StringArray tokenizar(char * string, char * delimitador);
 void resetFlags(InternalFlags *flags);
-void executar(char* path,StringArray args[]);
+void executar(char* path,StringArray *args);
 #endif
