@@ -18,18 +18,6 @@ char* getHostname(){
     return buffer;
 }
 
-char* toUpperCase(char* word){
-
-    for(int i=0; word[i]!='\0'; i++)
-    {
-        if(word[i]>='a' && word[i]<='z')
-        {
-            word[i] = word[i] - 32;
-        }
-    }
-    return word;
-}
-
 StringArray tokenizar(char * string, char * delimitador){
 
     char **tokens = (char**)malloc(sizeof(char*));

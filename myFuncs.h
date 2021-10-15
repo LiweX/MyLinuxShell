@@ -37,7 +37,6 @@ typedef struct InternalFlags
 
 FILE* openFile(char*);
 char* getHostname();
-char* toUpperCase(char* word);
 StringArray tokenizar(char * string, char * delimitador);
 void resetFlags(InternalFlags *flags);
 #endif
