@@ -24,28 +24,22 @@ int main (int argc, char *argv[]){
 
         batchFile(&flags,&pathArray,argv[1]);
 
-    }else{
+    }else if(argc<2){
         char buffer[400];
         write(1,prompt,strlen(prompt));
 
         while(read(0,buffer,200)){
-
-        cmdArray = tokenizar(buffer," ");
-
-        parseInternalCommands(&flags,&cmdArray);
-
-        executeInternalCommands(&flags,&cmdArray);
-
-        if(flags.externo){
-            externalCommand(&cmdArray,&pathArray,&flags);
+            cmdArray = tokenizar(buffer," ");
+            parseInternalCommands(&flags,&cmdArray);
+            executeInternalCommands(&flags,&cmdArray);
+            if(flags.externo) externalCommand(&cmdArray,&pathArray,&flags);
+            resetFlags(&flags);
+            sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW);
+            write(1,prompt,strlen(prompt));
         }
-
-        resetFlags(&flags);
-
-        sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW);
-        write(1,prompt,strlen(prompt));
+    }else{
+          write(1,"invalid entry\n",18);
+          exit(EXIT_FAILURE);
     }
-    write(1,"cuestion invalida\n",18);
-    exit(EXIT_FAILURE);
-    }
+  
 }
