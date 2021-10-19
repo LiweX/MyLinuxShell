@@ -7,7 +7,7 @@ int main (int argc, char *argv[]){
 
     char prompt[400];
     char path[400];
-    char motd[] = "\x1b[35m#########################\n\n       LIWEX SHELL       \n\n#########################\n";
+    char motd[] = "\x1b[35m#########################\n\n       LIWEX SHELL       \n\n##########################\n";
     write(1,motd,strlen(motd));
     char *user = getenv("USER");
     char *hostname = getHostname();

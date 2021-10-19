@@ -21,6 +21,9 @@ void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
             strcat(path,strtok(NULL,"\n"));
             execv(path,args->elements);
         }else{
+            if(flags->background){
+            args->elements[args->size-1] = NULL;
+            }
             for(int i=0;i<paths->size;i++){
                 strcpy(path,paths->elements[i]);
                 strcat(path,"/");
@@ -32,11 +35,13 @@ void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
         break;
     default:
         if(flags->background){
-            printf("Background\n");
+            char bg[20]="";
+            sprintf(bg,"%d",ret);
+            write(1,bg,20);
         } 
         else{
             wait(NULL);
         }
         break;
-    } 
+    }
 }
