@@ -29,15 +29,17 @@ int main (int argc, char *argv[]){
 
     }else if(argc<2){
         char buffer[400];
+        char aux[400]="";
         write(1,prompt,strlen(prompt));
 
-        while(read(0,buffer,200)){
-            cmdArray = tokenizar(buffer," ");
+        while(read(0,buffer,400)){
+            cmdArray = tokenizar(strcpy(aux,buffer)," ");
             parseCommands(&flags,&cmdArray);
-            if(flags.pipe) usePipes(buffer);
-            executeInternalCommands(&flags,&cmdArray);
-            if(flags.externo) externalCommand(&cmdArray,&pathArray,&flags);
+            if(flags.pipe) usePipes(strcpy(aux,buffer));
+            else if(flags.externo) externalCommand(&cmdArray,&pathArray,&flags);
+            else executeInternalCommands(&flags,&cmdArray);
             resetFlags(&flags);
+            fflush(stdin);
             sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW);
             write(1,prompt,strlen(prompt));
         }

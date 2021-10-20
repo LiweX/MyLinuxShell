@@ -31,7 +31,8 @@ StringArray tokenizar(char * string, char * delimitador){
                 exit(EXIT_FAILURE);
             }
         }
-        tokens[n_tokens]=token;
+        if(strncmp(token," ",1)==0) tokens[n_tokens]=token+1;
+        else tokens[n_tokens]=token;
         n_tokens++;
         token=strtok(NULL,delimitador); 
 
