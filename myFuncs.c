@@ -64,4 +64,5 @@ void resetFlags(InternalFlags *flags){
     flags->absoluto=0;
     flags->relativo=0;
     flags->background=0;
+    flags->pipe=0;
 }

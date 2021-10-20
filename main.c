@@ -2,6 +2,8 @@
 #include "internalCmds.h"
 #include "externalCmds.h"
 #include "batchFile.h"
+#include "pipes.h"
+#include "signals.h"
 
 int main (int argc, char *argv[]){
 
@@ -19,6 +21,7 @@ int main (int argc, char *argv[]){
     pathArray=tokenizar(path,":");
     InternalFlags flags;
     resetFlags(&flags);
+    switchOffSignals();
 
     if(argc==2){
 
@@ -30,7 +33,8 @@ int main (int argc, char *argv[]){
 
         while(read(0,buffer,200)){
             cmdArray = tokenizar(buffer," ");
-            parseInternalCommands(&flags,&cmdArray);
+            parseCommands(&flags,&cmdArray);
+            if(flags.pipe) usePipes(buffer);
             executeInternalCommands(&flags,&cmdArray);
             if(flags.externo) externalCommand(&cmdArray,&pathArray,&flags);
             resetFlags(&flags);

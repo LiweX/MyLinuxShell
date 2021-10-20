@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #define COLOR_RED "\x1b[31m"
 #define COLOR_GREEN "\x1b[32m"
@@ -32,6 +33,7 @@ typedef struct InternalFlags
     int absoluto;
     int relativo;
     int background;
+    int pipe;
 
 } InternalFlags;
 

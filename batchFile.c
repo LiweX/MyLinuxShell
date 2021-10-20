@@ -18,7 +18,7 @@ void batchFile(InternalFlags *flags,StringArray *paths,char* fileName){
         sprintf(prompt,"\n%s%s@%s:%s%s%s$ %s",COLOR_GREEN,getenv("USER"),getHostname(),COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW,buffer);
         write(1,prompt,strlen(prompt));
         cmdArray = tokenizar(buffer," ");
-        parseInternalCommands(flags,&cmdArray);
+        parseCommands(flags,&cmdArray);
         executeInternalCommands(flags,&cmdArray);
         if(flags->externo){
             externalCommand(&cmdArray,paths,flags);

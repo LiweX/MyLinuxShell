@@ -4,7 +4,7 @@
 #include <string.h>
 #include "myFuncs.h"
 
-void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
+void parseCommands(InternalFlags * flags,StringArray * cmds){
 
     if(strcmp(cmds->elements[0],"cd")==0 && cmds->size==2){
         flags->cd=1;
@@ -30,7 +30,8 @@ void parseInternalCommands(InternalFlags * flags,StringArray * cmds){
     if(strcmp(cmds->elements[(cmds->size-1)],"&")==0){
       cmds->size-=1; 
       flags->background=1; 
-    } 
+    }
+    for(int i=0;i<cmds->size;i++) if(strcmp(cmds->elements[i],"|")==0) flags->pipe=1;
 }
 
 void executeInternalCommands(InternalFlags * flags,StringArray * cmds){

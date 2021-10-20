@@ -1,9 +1,9 @@
 #include "myFuncs.h"
+#include "signals.h"
 
 void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
     
     char path[200];
-    
     int ret = fork();
     switch (ret){
     case -1:
@@ -11,6 +11,7 @@ void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
         exit(EXIT_FAILURE);
         break;
     case 0:
+        switchOnSignals();
         if(flags->absoluto){
             strcpy(path,args->elements[0]);
             execv(path,args->elements);
@@ -21,9 +22,7 @@ void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
             strcat(path,strtok(NULL,"\n"));
             execv(path,args->elements);
         }else{
-            if(flags->background){
-            args->elements[args->size-1] = NULL;
-            }
+            if(flags->background) args->elements[args->size-1] = NULL;
             for(int i=0;i<paths->size;i++){
                 strcpy(path,paths->elements[i]);
                 strcat(path,"/");
