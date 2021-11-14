@@ -34,6 +34,7 @@ typedef struct InternalFlags
     int relativo;
     int background;
     int pipe;
+    int IOredirection;
 
 } InternalFlags;
 
