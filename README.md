@@ -1,79 +1,281 @@
-Laboratorio N4
-# MyShell basic
+Laboratorio N4/5
+# MyShell basic & advanced
 ### SOI - FCEFyN - UNC - 2021
 
 
-## Objetivo
-Con el desarrollo del siguiente Trabajo Práctico (TP), se busca:
+## Desarrollo
+Para desarrolo de esta shell se utilizan dos estructuras.
+La primera para facilitar el manejo de las cadenas ingresadas por teclado.
+```
+typedef struct StringArray
+{
+    int size;
+    char ** elements;
+} StringArray;
+```
+La funcion `StringArray tokenizar(char * string, char * delimitador)`  se encarga de crear un arreglo dinamico con las cadenas separadas por el caracter delimitador. Se guarda la direccion del arreglo y la cantidad de elementos del arreglo en la estructura. De esta forma es mas facil recorrer con un `for` las palabras de las cadenas ingresadas por el usuario.
+La otra estructura se utiliza como flag
+```
+typedef struct InternalFlags
+{
+    int cd;
+    int echo;
+    int clr;
+    int echo_env;
+    int cd_direct;
+    int cd_guion;
+    int quit;
+    int externo;
+    int absoluto;
+    int relativo;
+    int background;
+    int pipe;
+    int IOredirection;
 
-- Utilizar mecanismos de creación de Procesos.
-- Utilizar mecanismos de concurrencia e IPC.
-- Diseñar un intérprete de línea de comandos al estilo Bourne shell.
+} InternalFlags;
+```
+La funcion `resetFlags(InternalFlags *flags)` se encarga de poner estas flags en 0.
+La funcion `parseCommands(InternalFlags * flags,StringArray * cmds)` recorre la cadena ingresada y si encuentra una palabra clave o un simbolo especifico levanta la flag correspondiente a dicho evento seteando su valor a 1. Luego estas flags seran analizadas para saber que accion tomar.
+### Funcionamiento de la shell.
+```
+...
+while(read(0,buffer,400)){   //leer la entrada del usuario
+            cmdArray = tokenizar(strcpy(aux,buffer)," ");                   //separar la cadena por espacios
+            parseCommands(&flags,&cmdArray);                                //analizar la cadena en busqueda de palabras o simbolos clave.
+            if(flags.pipe) usePipes(strcpy(aux,buffer));                    //accion a tomar si hay pipe
+            else if(flags.externo) externalCommand(&cmdArray,&pathArray,&flags);       //accion para ejecutar comando externo.
+            else executeInternalCommands(&flags,&cmdArray);                            //accion para ejecutar comando externo.
+            resetFlags(&flags);                                                        //poner las flags en cero.
+            sprintf(prompt,"\n%s%s@%s:%s%s%s$ ",COLOR_GREEN,user,hostname,COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW); //volver a armar el prompt
+            write(1,prompt,strlen(prompt));                                                                         // impirimr el prompt
+        }
+...
+```
 
+### Comandos internos.
+Para los comandos internos: `cd`, `echo`, `clr` y `quit`, la estructura de las flags facilita la toma de deciciones.
+```
+void executeInternalCommands(InternalFlags * flags,StringArray * cmds){
+    if(flags->cd){
+        char dir[200];
+        if(flags->cd_guion){
+            if(chdir(getenv("OLDPWD")) != 0) perror("change to oldpwd failed");
+            else{
+                setenv("OLDPWD",getenv("PWD"),1);
+                setenv("PWD",getcwd(NULL, 0),1);
+            }return;
+        }
 
-## Duración
-Con el material dado en clase, este laboratorio está diseñado para resolverse entre 8 y 10 horas.
+        if(flags->cd_direct){
+            if(chdir(cmds->elements[1]) != 0) perror("change direct directory failed");
+            else{
+                setenv("OLDPWD",getenv("PWD"),1);
+                setenv("PWD",cmds->elements[1],1);
+            }return;
+        }
 
+        strcpy(dir,getcwd(NULL, 0));
+        strcat(dir,"/");
+        strcat(dir,cmds->elements[1]);
+        if(chdir(dir) != 0) perror("change directory failed");
+        else{
+                setenv("OLDPWD",getenv("PWD"),1);
+                setenv("PWD",getcwd(NULL, 0),1);
+        }return;
+    }
 
-## Introducción
-Este trabajo práctico consta en la elaboración de un programa en lenguaje C sobre _GNU/Linux_. El trabajo se divide en soluciones incrementales.
+    if(flags->echo){
+        char string[300]="";
+        for(int i=1;i<cmds->size;i++){
+            if(strncmp(cmds->elements[i],"$",1)==0) strcat(string,getenv((cmds->elements[i]+1)));
+            else strcat(string,cmds->elements[i]);
+            strcat(string," ");    
+        }
+        write(1,string,strlen(string));
+        return;
+    }
 
+    if(flags->clr){
+        system("clear");
+        return;
+    }
 
-## Actividades
-#### 1. Command line prompt
-_myshell_ debe contar con un prompt que contenga el camino al directorio actual.
+    if(flags->quit){
+        write(1,"Bye bye!\n",10);
+        exit(EXIT_SUCCESS);
+    }
+}
+```
 
-Por ejemplo, para el home: _username@hostname:~$_
+### Program invocation
+Si no hay comandos internos en la cadena ingresada por el usuario se usa la funcion `externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags)`
+Dicha funcion tiene un arreglo con las rutas en la variable de entorno `PATH` separadas por `:` ya que si no se proporciona la direccion absoluta del programa a ejectuar se debe buscar en este arreglo.
+```
+void externalCommand(StringArray *args,StringArray *paths,InternalFlags *flags){
+    
+    char path[200];
+    int ret = fork();
+    switch (ret){
+    case -1:
+        perror("fork failed");
+        exit(EXIT_FAILURE);
+        break;
+    case 0:
+        switchOnSignals();
+        if(flags->absoluto){
+            strcpy(path,args->elements[0]);
+            execv(path,args->elements);
+        }else if(flags->relativo){
+            strcpy(path,getenv("PWD"));
+            strcat(path,"/");
+            strtok(args->elements[0],"/");
+            strcat(path,strtok(NULL,"\n"));
+            execv(path,args->elements);
+        }else{
+            if(flags->background) args->elements[args->size-1] = NULL;
+            for(int i=0;i<paths->size;i++){
+                strcpy(path,paths->elements[i]);
+                strcat(path,"/");
+                strcat(path,args->elements[0]);
+                execv(path,args->elements);
+            }
+        }
+        exit(EXIT_SUCCESS);
+        break;
+    default:
+        if(flags->background){
+            char bg[20]="";
+            sprintf(bg,"%d",ret);
+            write(1,bg,20);
+        } 
+        else{
+            wait(NULL);
+        }
+        break;
+    }
+}
+```
 
+### Batch file
+Si myshell se ejecuta con un argumento, dicho argumento sera el nombre del batchfile a ejecutar, el cual debe estar en el mismo directorio en el que se encuentra el ejecutable. Las instrucciones del archivo deben estan separadas por enters.
+```
+if(argc==2){
 
+        batchFile(&flags,&pathArray,argv[1]);
+```
+La funcion batchFile tiene una funcionalidad parecida al main de la shell. La diferencia es que en vez de leer las instrucciones por el teclado, las toma linea por linea del batchfile.
+```
+void batchFile(InternalFlags *flags,StringArray *paths,char* fileName){
 
-#### 2. Internal commands
-_myshell_ debe soportar los siguientes comandos internos:
+    char filePath[400];
+    char buffer[400];
+    char aux[400];
+    char prompt[500];
+    strcpy(filePath,getcwd(NULL,0));
+    strcat(filePath,"/");
+    strcat(filePath,fileName);
+    FILE *file = openFile(filePath);
+    StringArray cmdArray;
 
-- __cd \> directorio \>__ : cambia el directorio actual a \<directorio\>. Si \<directorio\> no está presente, reporta el directorio actual. Si el directorio no existe se debe imprimir un error apropiado. Además, este comando debe cambiar la variable de entorno PWD. 
-Este comando debe soportar la opción *cd -*, que retorna al último directorio de trabajo (__OLDPWD__).
+    while(fgets(buffer,400,file)!=NULL){
+        sprintf(prompt,"\n%s%s@%s:%s%s%s$ %s",COLOR_GREEN,getenv("USER"),getHostname(),COLOR_BLUE,getcwd(NULL, 0),COLOR_YELLOW,buffer);
+        write(1,prompt,strlen(prompt));
+        cmdArray = tokenizar(strcpy(aux,buffer)," ");
+        parseCommands(&flags,&cmdArray);
+        if(flags->pipe) usePipes(strcpy(aux,buffer));
+        else if(flags->externo) externalCommand(&cmdArray,&paths,&flags);
+        else executeInternalCommands(&flags,&cmdArray);
+        resetFlags(&flags);
+        
+    }
+    exit(EXIT_SUCCESS);
+}
+```
 
-- __clr__: limpia la pantalla
+### Background execution
+Si se usa `&` al final de la linea el programa se ejecuta en segundo plano
+```
+...
+default:
+        if(flags->background){
+            char bg[20]="";
+            sprintf(bg,"%d",ret);
+            write(1,bg,20);
+        } 
+        else{
+            wait(NULL);
+        }
+        break;
+...
+```
+La flag ayuda a determinar si se encuentra el `&` y lo unico que cambia es que el programa padre no espera al hijo para volver a la shell.
 
-- __echo \<comentario\|env var\>__ : muestra \<comentario\> en la pantalla seguido por una línea nueva. (múltiples espacios\/tabs pueden ser reducidos a un espacio).
+### Signal Handling
+Para el manejo de señales existen las siguientes funciones.
+```
+void switchOffSignals(void){
+    signal(SIGINT,SIG_IGN);
+    signal(SIGTSTP,SIG_IGN);
+    signal(SIGQUIT,SIG_IGN);
+}
+void switchOnSignals(void){
+    signal(SIGINT,SIG_DFL);
+    signal(SIGTSTP,SIG_DFL);
+    signal(SIGQUIT,SIG_DFL); 
+}
+```
+Estas funciones "prenden y apagan" las señales dependiendo si el proceso es hijo o padre. De esta forma un proceso hijo puede recibir una señal para terminar con la ejecucion y volver al shell, mientras que el proceso padre las ignora.
 
-- __quit__ : cierra myshell
+### Pipes
+Solo se permiten pipes simples.
+Si se detecta el simbolo `|` se levanta la flag de pipes y el main llamara la funcion `usePipes(char * commands)`
+La funcion separa la cadena ingresada con el caracter `|`, se crea el pipe y asignan los comandos de entrada y salida correspondientes.
+```
+void usePipes(char * commands){
+    char aux[400];
+    StringArray pipeArray;
+    pipeArray = tokenizar(strcpy(aux,commands),"|");
+    pid_t pid;
+    int fd[2];
+    StringArray entrada = tokenizar(pipeArray.elements[0]," ");
+    StringArray salida = tokenizar(pipeArray.elements[1]," ");
 
-#### 3. Program invocation
-Las entradas del usuario que no sean comandos internos deben ser interpretados como la invocación de un programa. La misma tiene que ser realizada mediante _fork_ y _execl_. Debe además soportar paths relativos y absolutos.
+    pipe(fd);
+    pid = fork();
 
+    if(pid==0)
+    {
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[0]);
+        close(fd[1]);
+        execvp(entrada.elements[0], entrada.elements);
+        fprintf(stderr, "Failed to execute '%s'\n", entrada.elements[0]);
+        exit(1);
+    }
+    else
+    { 
+        pid=fork();
 
-#### 4. Batch file
-_myshell_ debe ser capaz de tomar sus comandos a ejecutar desde un archivo. Por ejemplo, si la shell es invocada con un argumento _myshell batchfile_. El _batchfile_ contiene un conjunto de comandos de línea para que la shell ejecute. 
+        if(pid==0)
+        {
+            dup2(fd[0], STDIN_FILENO);
+            close(fd[1]);
+            close(fd[0]);
+            execvp(salida.elements[0], salida.elements);
+            fprintf(stderr, "Failed to execute '%s'\n", salida.elements[0]);
+            exit(1);
+        }
+        else
+        {
+            int status;
+            close(fd[0]);
+            close(fd[1]);
+            waitpid(pid, &status, 0);
+        }
+    }
 
-Cuando se alcance el fin de archivo (EOF), _myshell_ debe cerrarse.
-
-Notar que si myshell se ejecuta sin argumento (.\/myshell), se tiene que mostrar el command prompt y se debe esperar a comandos del usuario vía stdin.
-
-#### 5. Background execution
-Un ampersand & al final de la línea de comando indica que la shell debe retornar al prompt inmediatamente luego de lanzar al programa a ejecutarse en background.
-
-Cuando se comienza un trabajo en background, se debe imprimir un mensaje indicando su _Trabajo_ y su _ID de proceso_.
-
-`[<job id>] <process id>`
-
-Ejemplo:
-`$ echo 'hola' &
-[1] 10506
-hola`
-
-## Criterios de Corrección
-- Se debe compilar el código con los flags de compilación: -Wall -Pedantic -Werror 
-- Dividir el código en módulos de manera juiciosa.
-- Estilo de código.
-- El código no debe contener errores, ni warnings.
-- El código no debe contener errores de cppcheck.
-- _myshell_ no debe crear procesos zombies.
-
-## Qué se debe Entregar
-- Informe del desarrollo del proyecto (markdown).
-- Código (funcionando bajo las especificaciones dadas y bajo cualquier caso de test de parámetros de entrada).
-- Makefile
-- Todo en el GitHub
-
-
+}
+```
+¿Dónde se encuentran los pipes en el filesystem, qué atributos tienen?
+Rta here.
+### I/O redirection
